@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 
-// helper
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -27,16 +26,38 @@ export default function LoginPage() {
     },
   });
 
-  async function handleLogin() {
-    if (!canSubmit) return;
-    setLoading(true);
 
-    // mock API
-    await new Promise((r) => setTimeout(r, 1500));
+  // Normal Login 
+ async function handleLogin() {
+   if (!canSubmit) return;
+   setLoading(true);
 
-    console.log("Login:", { email, password });
-    setLoading(false);
-  }
+   try {
+     const response = await fetch("http://localhost:5000/api/auth/login", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+       },
+       body: JSON.stringify({ email, password }),
+     });
+
+     const data = await response.json();
+     if (!response.ok) {
+       throw new Error(data.message || "Login failed");
+     }
+     localStorage.setItem("token", data.token);
+
+     console.log("Login Success:", data);
+
+     alert("Login Successful!");
+     navigate("/");
+   } catch (error) {
+     console.error("Login Error:", error.message);
+     alert(error.message); 
+   } finally {
+     setLoading(false);
+   }
+ }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">

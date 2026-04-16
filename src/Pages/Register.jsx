@@ -405,7 +405,7 @@ export default function ALittleBidRegister() {
                   Account Type
                 </p>
                 <div className="flex gap-10">
-                  {["buyer", "seller"].map((role) => (
+                  {["buyer", "Seller"].map((role) => (
                     <label
                       key={role}
                       className="flex items-center gap-2 cursor-pointer text-sm capitalize group"
