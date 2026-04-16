@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import App from "./App.jsx";
+import { RouterProvider } from "react-router-dom";
+import router from "./Routes/index";
 import "./index.css";
 
 const GOOGLE_CLIENT_ID =
@@ -10,7 +11,7 @@ const GOOGLE_CLIENT_ID =
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <App />
+      <RouterProvider router={router} />
     </GoogleOAuthProvider>
   </React.StrictMode>,
 );
