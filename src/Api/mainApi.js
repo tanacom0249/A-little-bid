@@ -10,12 +10,20 @@ export const mainApi = axios.create({
 
 mainApi.interceptors.request.use((config) => {
   const token = useUserStore.getState().token;
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
+// register
 export const apiRegister = async (body) => {
   return await mainApi.post("/auth/register", body);
+};
+
+// login
+export const apiLogin = async (body) => {
+  return await mainApi.post("/auth/login", body);
 };

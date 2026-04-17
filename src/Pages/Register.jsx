@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-// 1. นำเข้า Hook สำหรับ Google (ต้องติดตั้ง npm install @react-oauth/google)
 import { useGoogleLogin } from "@react-oauth/google";
 
 // ─── Icon components (คงเดิมทั้งหมด) ─────────────────────────────────────
@@ -142,10 +141,12 @@ export default function ALittleBidRegister() {
     password: "",
     confirmPassword: "",
     street: "",
-    suite: "",
     city: "",
+    label: "", // สำหรับที่อยู่
+    state: "", //   จังหวัด
+    country: "", // ประเทศ
     postalCode: "",
-    roles: [],
+    role: "", // Buyer หรือ Seller
   });
 
   const [agreed, setAgreed] = useState(false);
@@ -153,7 +154,7 @@ export default function ALittleBidRegister() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // 2. Logic สำหรับดึงข้อมูลจาก Google Profile
+  //  Logic สำหรับดึงข้อมูลจาก Google Profile
   const handleGoogleSuccess = async (tokenResponse) => {
     setLoading(true);
     try {
@@ -190,13 +191,14 @@ export default function ALittleBidRegister() {
     if (!form.firstName.trim()) e.firstName = "Required";
     if (!form.lastName.trim()) e.lastName = "Required";
     if (!form.username.trim()) e.username = "Required";
+    if (!form.phone.trim()) e.phone = "Required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = "Invalid email";
     if (form.password.length < 8) e.password = "At least 8 characters";
     if (form.password !== form.confirmPassword)
       e.confirmPassword = "Passwords do not match";
     if (!form.street.trim()) e.street = "Required";
-    if (form.roles.length === 0) e.roles = "Please select at least one role";
+    if (!form.role) e.role = "Please select a role";
     if (!agreed) e.terms = "You must agree to continue";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -207,24 +209,42 @@ export default function ALittleBidRegister() {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
+
     try {
+      // 1. เตรียมข้อมูลให้ตรงกับที่ Controller ใน Backend รอรับ (Flat Structure)
+      const payload = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        username: form.username,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: form.role,
+        street: form.street,
+        city: form.city,
+        postalCode: form.postalCode,
+        label: form.label,
+        state: form.state,
+        country: form.country,
+      };
+
+      // 2. ส่ง Request
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          address: {
-            street: form.street,
-            suite: form.suite,
-            city: form.city,
-            postalCode: form.postalCode,
-          },
-        }),
+        body: JSON.stringify(payload),
       });
+
+      // 3. อ่าน Response
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.message || "Register failed");
+
+      if (!res.ok) {
+        throw new Error(data.message || "Register failed");
+      }
+
       setSuccess(true);
     } catch (err) {
+      console.error("Submit Error:", err);
       alert(err.message);
     } finally {
       setLoading(false);
@@ -390,6 +410,16 @@ export default function ALittleBidRegister() {
                   error={errors.email}
                   prefixIcon={<EnvelopeIcon />}
                 />
+
+                <UnderlineInput
+                  label="Phone"
+                  id="phone"
+                  value={form.phone}
+                  onChange={set("phone")}
+                  placeholder="081-234-5678"
+                  error={errors.phone}
+                />
+
                 <UnderlineInput
                   label="Username"
                   id="username"
@@ -404,27 +434,28 @@ export default function ALittleBidRegister() {
                 <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-3">
                   Account Type
                 </p>
-                <div className="flex gap-10">
-                  {["buyer", "Seller"].map((role) => (
+
+                <div className="flex gap-40">
+                  {["Buyer", "Seller"].map((roleOption) => (
                     <label
-                      key={role}
+                      key={roleOption}
                       className="flex items-center gap-2 cursor-pointer text-sm capitalize group"
                     >
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="role"
                         className="accent-[#8B1A1A]"
-                        checked={form.roles.includes(role)}
+                        value={roleOption}
+                        checked={form.role === roleOption}
                         onChange={(e) => {
-                          const newRoles = e.target.checked
-                            ? [...form.roles, role]
-                            : form.roles.filter((r) => r !== role);
-                          setForm({ ...form, roles: newRoles });
+                          setForm({ ...form, role: e.target.value });
                         }}
-                      />{" "}
-                      {role}
+                      />
+                      {roleOption}
                     </label>
                   ))}
                 </div>
+
                 {errors.roles && (
                   <p className="text-[11px] text-red-500 mt-1">
                     {errors.roles}
@@ -466,10 +497,17 @@ export default function ALittleBidRegister() {
                   prefixIcon={<PinIcon />}
                 />
                 <UnderlineInput
-                  id="suite"
-                  value={form.suite}
-                  onChange={set("suite")}
-                  placeholder="Suite/Apt"
+                  id="label"
+                  value={form.label}
+                  onChange={set("label")}
+                  placeholder="Label"
+                  prefixIcon={<PinIcon />}
+                />
+                <UnderlineInput
+                  id="state"
+                  value={form.state}
+                  onChange={set("state")}
+                  placeholder="State"
                   prefixIcon={<PinIcon />}
                 />
                 <UnderlineInput
@@ -477,6 +515,13 @@ export default function ALittleBidRegister() {
                   value={form.city}
                   onChange={set("city")}
                   placeholder="City"
+                  prefixIcon={<PinIcon />}
+                />
+                <UnderlineInput
+                  id="country"
+                  value={form.country}
+                  onChange={set("country")}
+                  placeholder="Country"
                   prefixIcon={<PinIcon />}
                 />
                 <UnderlineInput

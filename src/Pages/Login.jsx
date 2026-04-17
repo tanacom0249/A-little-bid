@@ -26,38 +26,37 @@ export default function LoginPage() {
     },
   });
 
+  // Normal Login
+  async function handleLogin() {
+    if (!canSubmit) return;
+    setLoading(true);
 
-  // Normal Login 
- async function handleLogin() {
-   if (!canSubmit) return;
-   setLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-   try {
-     const response = await fetch("http://localhost:5000/api/auth/login", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify({ email, password }),
-     });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+      localStorage.setItem("token", data.token);
 
-     const data = await response.json();
-     if (!response.ok) {
-       throw new Error(data.message || "Login failed");
-     }
-     localStorage.setItem("token", data.token);
+      console.log("Login Success:", data);
 
-     console.log("Login Success:", data);
-
-     alert("Login Successful!");
-     navigate("/");
-   } catch (error) {
-     console.error("Login Error:", error.message);
-     alert(error.message); 
-   } finally {
-     setLoading(false);
-   }
- }
+      alert("Login Successful!");
+      navigate("/");
+    } catch (error) {
+      console.error("Login Error:", error.message);
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-4">
@@ -109,7 +108,10 @@ export default function LoginPage() {
 
         {/* forgot */}
         <div className="text-right mb-4">
-          <button className="text-sm text-red-800 font-semibold">
+          <button
+            className="text-sm text-red-800 font-semibold"
+            onClick={() => navigate("/forgot-password")}
+          >
             Forgot password?
           </button>
         </div>
@@ -146,7 +148,10 @@ export default function LoginPage() {
         {/* register */}
         <p className="text-sm text-center mt-6 text-gray-500">
           Don't have an account?{" "}
-          <span className="text-red-800 font-semibold cursor-pointer" onClick={() => navigate("/register")}>
+          <span
+            className="text-red-800 font-semibold cursor-pointer"
+            onClick={() => navigate("/register")}
+          >
             Register
           </span>
         </p>
