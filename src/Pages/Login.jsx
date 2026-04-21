@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google"; // เปลี่ยนจาก useGoogleLogin เป็น GoogleLogin
 import { useNavigate } from "react-router-dom";
 
 function validateEmail(email) {
@@ -14,17 +14,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const canSubmit = validateEmail(email) && password.length >= 8;
-
-  // Google login
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (token) => {
-      const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-        headers: { Authorization: `Bearer ${token.access_token}` },
-      });
-      const profile = await res.json();
-      console.log("Google user:", profile);
-    },
-  });
 
   // Normal Login
   async function handleLogin() {
@@ -65,7 +54,7 @@ export default function LoginPage() {
         {/* title */}
         <div className="mb-6">
           <h2 className="text-2xl font-extrabold text-gray-900">
-            Welcome back 👋
+            Welcome back
           </h2>
           <p className="text-sm text-gray-500">Login to your account</p>
         </div>
@@ -109,10 +98,10 @@ export default function LoginPage() {
         {/* forgot */}
         <div className="text-right mb-4">
           <button
-            className="text-sm text-red-800 font-semibold"
-            onClick={() => navigate("/forgot-password")}
+            className="text-sm text-red-800 font-semibold cursor-pointer"
+            onClick={() => navigate("/request-otp")}
           >
-            Forgot password?
+            Forgot password
           </button>
         </div>
 
@@ -138,12 +127,44 @@ export default function LoginPage() {
         </div>
 
         {/* google */}
-        <button
-          onClick={() => googleLogin()}
-          className="w-full py-3 border rounded-lg font-semibold hover:bg-gray-50"
-        >
-          Continue with Google
-        </button>
+        <div className="w-full flex justify-center">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              console.log("Google Credential Response:", credentialResponse);
+
+              setLoading(true);
+              try {
+                // ส่ง idToken (credential) ไปที่ Backend
+                const res = await fetch(
+                  "http://localhost:5000/api/auth/google",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      token: credentialResponse.credential,
+                    }),
+                  },
+                );
+
+                const data = await res.json();
+                if (!res.ok)
+                  throw new Error(data.message || "Google Login failed");
+
+                localStorage.setItem("token", data.token);
+                alert("Login with Google Successful!");
+                navigate("/");
+              } catch (error) {
+                console.error("Google Login Error:", error.message);
+                alert(error.message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            onError={() => {
+              alert("Google Login Failed");
+            }}
+          />
+        </div>
 
         {/* register */}
         <p className="text-sm text-center mt-6 text-gray-500">

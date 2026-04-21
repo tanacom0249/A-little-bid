@@ -49,7 +49,7 @@ const ResetPassword = () => {
         localStorage.removeItem("resetOtp");
 
         // 5. กลับไปหน้า Login
-        navigate("/login");
+        navigate("/");
       }
     } catch (error) {
       setError(

@@ -14,6 +14,7 @@ const RequestOTP = () => {
     setMessage("");
 
     try {
+      console.log("Requesting OTP for email:", email); // Debug: ตรวจสอบค่าอีเมลก่อนส่งไป Backend
       // 1. ส่ง Request ไปยัง Backend
       const response = await axios.post(
         "http://localhost:5000/api/auth/request-otp",
@@ -42,7 +43,7 @@ const RequestOTP = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-          ลืมรหัสผ่าน?
+          ลืมรหัสผ่าน
         </h2>
         <p className="text-gray-600 mb-6 text-center text-sm">
           กรอกอีเมลของคุณเพื่อรับรหัส OTP สำหรับตั้งรหัสผ่านใหม่

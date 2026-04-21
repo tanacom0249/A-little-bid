@@ -67,7 +67,7 @@ function UnderlineInput({
       {label && (
         <label
           htmlFor={id}
-          className="text-[11px] font-semibold text-gray-700 tracking-wide uppercase"
+          className="text-[11px] font-semibold text-gray-700 tracking-wide "
         >
           {label}
         </label>
@@ -134,8 +134,8 @@ function AvatarStack() {
 // ─── Main Page ────────────────────────────────────────────
 export default function ALittleBidRegister() {
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    firstname: "",
+    lastname: "",
     email: "",
     username: "",
     password: "",
@@ -147,6 +147,7 @@ export default function ALittleBidRegister() {
     country: "", // ประเทศ
     postalCode: "",
     role: "", // Buyer หรือ Seller
+    phone: "",
   });
 
   const [agreed, setAgreed] = useState(false);
@@ -166,8 +167,8 @@ export default function ALittleBidRegister() {
       // Auto-fill ข้อมูลที่ได้จาก Google เข้าไปในฟอร์ม
       setForm((prev) => ({
         ...prev,
-        firstName: data.given_name || "",
-        lastName: data.family_name || "",
+        firstname: data.given_name || "",
+        lastname: data.family_name || "",
         email: data.email || "",
       }));
     } catch (err) {
@@ -188,8 +189,8 @@ export default function ALittleBidRegister() {
   // Validation (คงเดิม)
   function validate() {
     const e = {};
-    if (!form.firstName.trim()) e.firstName = "Required";
-    if (!form.lastName.trim()) e.lastName = "Required";
+    if (!form.firstname.trim()) e.firstname = "Required";
+    if (!form.lastname.trim()) e.lastname = "Required";
     if (!form.username.trim()) e.username = "Required";
     if (!form.phone.trim()) e.phone = "Required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
@@ -213,8 +214,8 @@ export default function ALittleBidRegister() {
     try {
       // 1. เตรียมข้อมูลให้ตรงกับที่ Controller ใน Backend รอรับ (Flat Structure)
       const payload = {
-        firstName: form.firstName,
-        lastName: form.lastName,
+        firstname: form.firstname,
+        lastname: form.lastname,
         username: form.username,
         email: form.email,
         phone: form.phone,
@@ -289,7 +290,7 @@ export default function ALittleBidRegister() {
           </div>
           <div className="relative z-10 space-y-5">
             <AvatarStack />
-            <p className="text-[11px] tracking-widest uppercase text-gray-600">
+            <p className="text-[11px] tracking-widest  text-gray-600">
               © 2024 The Prestigious Gallery. Est. 1894.
             </p>
           </div>
@@ -301,7 +302,7 @@ export default function ALittleBidRegister() {
           style={{ background: "#AEAAA4" }}
         >
           <div className="w-full max-w-[480px] mb-8">
-            <p className="text-[10px] font-semibold tracking-[0.2em] uppercase mb-3 text-[#8B1A1A]">
+            <p className="text-[10px] font-semibold tracking-[0.2em]  mb-3 text-[#8B1A1A]">
               Collector Membership
             </p>
             <h2 className="font-display text-[42px] font-bold leading-[1.1] text-gray-900">
@@ -347,7 +348,7 @@ export default function ALittleBidRegister() {
               <button
                 type="button"
                 onClick={() => loginWithGoogle()}
-                className="w-full mb-6 py-3 border border-gray-200 flex items-center justify-center gap-3 hover:bg-gray-50 transition-all text-[12px] font-semibold tracking-wider text-gray-600 uppercase"
+                className="w-full mb-6 py-3 border border-gray-200 flex items-center justify-center gap-3 hover:bg-gray-50 transition-all text-[12px] font-semibold tracking-wider text-gray-600 "
               >
                 <svg width="18" height="18" viewBox="0 0 24 24">
                   <path
@@ -374,28 +375,25 @@ export default function ALittleBidRegister() {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-gray-100"></span>
                 </div>
-                <span className="relative bg-white px-4 text-[10px] text-gray-400 uppercase tracking-widest">
-                  or manually
-                </span>
               </div>
 
               {/* Input Fields (คงเดิม) */}
               <div className="grid grid-cols-2 gap-6 mb-7">
                 <UnderlineInput
                   label="First Name"
-                  id="firstName"
-                  value={form.firstName}
-                  onChange={set("firstName")}
+                  id="firstname"
+                  value={form.firstname}
+                  onChange={set("firstname")}
                   placeholder="Julian"
-                  error={errors.firstName}
+                  error={errors.firstname}
                 />
                 <UnderlineInput
                   label="Last Name"
-                  id="lastName"
-                  value={form.lastName}
-                  onChange={set("lastName")}
+                  id="lastname"
+                  value={form.lastname}
+                  onChange={set("lastname")}
                   placeholder="Sterling"
-                  error={errors.lastName}
+                  error={errors.lastname}
                 />
               </div>
 
@@ -431,7 +429,7 @@ export default function ALittleBidRegister() {
               </div>
 
               <div className="mb-7">
-                <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                <p className="text-[11px] font-semibold text-gray-700  tracking-wide mb-3">
                   Account Type
                 </p>
 
@@ -484,7 +482,7 @@ export default function ALittleBidRegister() {
                 />
               </div>
 
-              <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              <p className="text-[11px] font-semibold text-gray-700  tracking-wide mb-3">
                 Address
               </p>
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-7">
@@ -561,7 +559,7 @@ export default function ALittleBidRegister() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-4 text-white text-[11px] font-semibold tracking-[0.2em] uppercase transition-all ${loading ? "bg-[#6B1313] opacity-70 cursor-not-allowed" : "bg-[#8B1A1A] hover:bg-[#6B1313]"}`}
+                className={`w-full py-4 text-white text-[11px] font-semibold tracking-[0.2em]  transition-all ${loading ? "bg-[#6B1313] opacity-70 cursor-not-allowed" : "bg-[#8B1A1A] hover:bg-[#6B1313]"}`}
               >
                 {loading ? "Processing..." : "Create Collector Account"}
               </button>
